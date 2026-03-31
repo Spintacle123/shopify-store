@@ -1,0 +1,438 @@
+<script
+  src="{{ 'article-hearts.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+
+{% liquid
+  assign images = ''
+  if section.settings.image_1 != blank
+    assign images = images | append: '1'
+  endif
+  if section.settings.image_2 != blank
+    assign images = images | append: '2'
+  endif
+  if section.settings.image_3 != blank
+    assign images = images | append: '3'
+  endif
+  if section.settings.image_4 != blank
+    assign images = images | append: '4'
+  endif
+%}
+
+<article class="mock-blog-post color-{{ section.settings.color_scheme }}">
+  <div class="section-background color-{{ section.settings.color_scheme }}"></div>
+  <div class="section spacing-style" style="{% render 'spacing-style', settings: section.settings %}">
+    <header class="mock-blog-post__header">
+      <div class="mock-blog-post__header-top">
+        <div class="mock-blog-post__header-content">
+          <h1 class="h2">{{ section.settings.title }}</h1>
+          <div class="mock-blog-post__meta">
+            <span>{{ section.settings.author }}</span>
+            <span aria-hidden="true">•</span>
+            <time datetime="{{ section.settings.date }}">{{ section.settings.date }}</time>
+          </div>
+          {% if section.settings.description != blank %}
+            <div class="rte mock-blog-post__description">{{ section.settings.description }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mock-blog-post__actions">
+          <button
+            type="button"
+            class="article-heart-button"
+            data-article-heart="{{ section.id }}"
+            aria-pressed="false"
+          >
+            <span class="article-heart-button__icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20" width="20" height="20" role="presentation" focusable="false">
+                {% render 'icon', icon: 'heart' %}
+              </svg>
+            </span>
+            <span class="article-heart-button__text" data-article-heart-text>Like</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="mock-blog-post__media">
+      <div class="mock-blog-post__gallery">
+        {% if section.settings.image_1 != blank %}
+          {{
+            section.settings.image_1
+            | image_url: width: 2400
+            | image_tag:
+              widths: '352, 832, 1200, 1600, 2400',
+              class: 'mock-blog-post__image mock-blog-post__image--main',
+              sizes: '(min-width: 750px) 65vw, 100vw',
+              loading: 'eager',
+              fetchpriority: 'high',
+              alt: section.settings.image_1.alt
+          }}
+        {% else %}
+          <div class="mock-blog-post__image mock-blog-post__image--main mock-blog-post__placeholder"></div>
+        {% endif %}
+
+        <div class="mock-blog-post__thumbs">
+          {% if section.settings.image_2 != blank %}
+            {{
+              section.settings.image_2
+              | image_url: width: 1200
+              | image_tag:
+                widths: '240, 352, 832, 1200',
+                class: 'mock-blog-post__image mock-blog-post__image--thumb',
+                sizes: '(min-width: 750px) 20vw, 50vw',
+                loading: 'lazy',
+                alt: section.settings.image_2.alt
+            }}
+          {% endif %}
+          {% if section.settings.image_3 != blank %}
+            {{
+              section.settings.image_3
+              | image_url: width: 1200
+              | image_tag:
+                widths: '240, 352, 832, 1200',
+                class: 'mock-blog-post__image mock-blog-post__image--thumb',
+                sizes: '(min-width: 750px) 20vw, 50vw',
+                loading: 'lazy',
+                alt: section.settings.image_3.alt
+            }}
+          {% endif %}
+          {% if section.settings.image_4 != blank %}
+            {{
+              section.settings.image_4
+              | image_url: width: 1200
+              | image_tag:
+                widths: '240, 352, 832, 1200',
+                class: 'mock-blog-post__image mock-blog-post__image--thumb',
+                sizes: '(min-width: 750px) 20vw, 50vw',
+                loading: 'lazy',
+                alt: section.settings.image_4.alt
+            }}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    {% if section.settings.content != blank %}
+      <div class="rte mock-blog-post__content">
+        {{ section.settings.content }}
+      </div>
+    {% endif %}
+
+    <div class="mock-blog-post__comments">
+      <h2 class="h3">Comments</h2>
+
+      <div class="mock-blog-post__comment-list">
+        {% if section.blocks.size == 0 %}
+          <div class="mock-blog-post__comment">
+            <div class="mock-blog-post__comment-body">Looks amazing. Can’t wait to try this.</div>
+            <div class="mock-blog-post__comment-meta">
+              <span class="mock-blog-post__comment-author">Jamie</span>
+              <span aria-hidden="true">•</span>
+              <span>Mar 31, 2026</span>
+            </div>
+          </div>
+          <div class="mock-blog-post__comment">
+            <div class="mock-blog-post__comment-body">Where can I find the full catalog?</div>
+            <div class="mock-blog-post__comment-meta">
+              <span class="mock-blog-post__comment-author">Alex</span>
+              <span aria-hidden="true">•</span>
+              <span>Mar 30, 2026</span>
+            </div>
+          </div>
+        {% else %}
+          {% for block in section.blocks %}
+            <div class="mock-blog-post__comment" {{ block.shopify_attributes }}>
+              <div class="mock-blog-post__comment-body">{{ block.settings.body }}</div>
+              <div class="mock-blog-post__comment-meta">
+                <span class="mock-blog-post__comment-author">{{ block.settings.author }}</span>
+                <span aria-hidden="true">•</span>
+                <span>{{ block.settings.date }}</span>
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <form class="mock-blog-post__comment-form" action="#" method="post">
+        <div class="mock-blog-post__field">
+          <label for="MockName-{{ section.id }}">Name</label>
+          <input id="MockName-{{ section.id }}" type="text" placeholder="Your name" />
+        </div>
+        <div class="mock-blog-post__field">
+          <label for="MockComment-{{ section.id }}">Comment</label>
+          <textarea id="MockComment-{{ section.id }}" rows="4" placeholder="Write a comment…"></textarea>
+        </div>
+        <button type="button" class="button">Post comment (mock)</button>
+      </form>
+    </div>
+  </div>
+</article>
+
+{% stylesheet %}
+  .mock-blog-post__header {
+    max-width: var(--normal-content-width);
+    margin: 0 auto var(--margin-xl);
+  }
+
+  .mock-blog-post__header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--gap-lg);
+  }
+
+  .mock-blog-post__meta {
+    margin-top: var(--margin-xs);
+    display: inline-flex;
+    gap: var(--gap-2xs);
+    align-items: center;
+    color: rgb(var(--color-foreground-rgb) / var(--opacity-subdued-text));
+    font-size: var(--font-size--body-sm);
+  }
+
+  .mock-blog-post__description {
+    margin-top: var(--margin-sm);
+  }
+
+  .mock-blog-post__media {
+    max-width: var(--normal-content-width);
+    margin: 0 auto var(--margin-2xl);
+  }
+
+  .mock-blog-post__gallery {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--gap-md);
+  }
+
+  .mock-blog-post__image {
+    width: 100%;
+    display: block;
+    background: rgb(var(--color-foreground-rgb) / var(--opacity-5));
+    border-radius: 14px;
+  }
+
+  .mock-blog-post__image--main {
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .mock-blog-post__placeholder {
+    background: linear-gradient(
+      135deg,
+      rgb(var(--color-foreground-rgb) / var(--opacity-10)),
+      rgb(var(--color-foreground-rgb) / var(--opacity-5))
+    );
+  }
+
+  .mock-blog-post__thumbs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--gap-sm);
+  }
+
+  .mock-blog-post__image--thumb {
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+  }
+
+  @media screen and (min-width: 750px) {
+    .mock-blog-post__gallery {
+      grid-template-columns: 2fr 1fr;
+      align-items: start;
+    }
+
+    .mock-blog-post__thumbs {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .mock-blog-post__content {
+    max-width: var(--normal-content-width);
+    margin: 0 auto;
+  }
+
+  .mock-blog-post__comments {
+    max-width: var(--normal-content-width);
+    margin: var(--margin-3xl) auto 0;
+    display: grid;
+    gap: var(--gap-lg);
+  }
+
+  .mock-blog-post__comment-list {
+    display: grid;
+    gap: var(--gap-lg);
+  }
+
+  .mock-blog-post__comment {
+    border: 1px solid rgb(var(--color-foreground-rgb) / var(--opacity-20));
+    border-radius: 12px;
+    padding: var(--padding-lg);
+    background: rgb(var(--color-background-rgb) / 0.6);
+  }
+
+  .mock-blog-post__comment-meta {
+    margin-top: var(--margin-sm);
+    display: inline-flex;
+    gap: var(--gap-2xs);
+    align-items: center;
+    font-size: var(--font-size--body-sm);
+    color: rgb(var(--color-foreground-rgb) / var(--opacity-subdued-text));
+  }
+
+  .mock-blog-post__comment-form {
+    display: grid;
+    gap: var(--gap-md);
+    border: 1px solid rgb(var(--color-foreground-rgb) / var(--opacity-20));
+    border-radius: 12px;
+    padding: var(--padding-lg);
+    background: rgb(var(--color-background-rgb) / 0.6);
+  }
+
+  .mock-blog-post__field {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .mock-blog-post__field input,
+  .mock-blog-post__field textarea {
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid rgb(var(--color-foreground-rgb) / var(--opacity-20));
+    padding: 0.7rem 0.8rem;
+    background: rgb(var(--color-background-rgb) / 0.9);
+    color: var(--color-foreground);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Mock blog post",
+  "tag": "section",
+  "class": "mock-blog-post",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Savors every last bite"
+    },
+    {
+      "type": "text",
+      "id": "author",
+      "label": "Author",
+      "default": "Aerionix"
+    },
+    {
+      "type": "text",
+      "id": "date",
+      "label": "Date",
+      "default": "Mar 31, 2026"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description",
+      "default": "<p>A short description to preview typography, spacing, and layout.</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "Content",
+      "default": "<p>This is mock content. Replace it with your real blog post later.</p><p>Add more paragraphs, headings, and images to see how it looks.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Images (max 4)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_1",
+      "label": "Image 1 (featured)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_2",
+      "label": "Image 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_3",
+      "label": "Image 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_4",
+      "label": "Image 4"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 64
+    }
+  ],
+  "blocks": [
+    {
+      "type": "comment",
+      "name": "Comment",
+      "settings": [
+        {
+          "type": "text",
+          "id": "author",
+          "label": "Author",
+          "default": "Jamie"
+        },
+        {
+          "type": "text",
+          "id": "date",
+          "label": "Date",
+          "default": "Mar 31, 2026"
+        },
+        {
+          "type": "textarea",
+          "id": "body",
+          "label": "Comment",
+          "default": "Looks amazing. Can’t wait to try this."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Mock blog post",
+      "blocks": [
+        { "type": "comment" },
+        { "type": "comment" }
+      ]
+    }
+  ]
+}
+{% endschema %}
+

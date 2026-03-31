@@ -1,0 +1,19 @@
+{
+  "sections": {
+    "main": {
+      "type": "mock-blog-post",
+      "settings": {
+        "title": "Savors every last bite",
+        "author": "Aerionix",
+        "date": "Mar 31, 2026",
+        "description": "<p>A short description to preview typography, spacing, and layout.</p>",
+        "content": "<p>This is mock content. Replace it with your real blog post later.</p><p>Add more paragraphs, headings, and images to see how it looks.</p>",
+        "color_scheme": "scheme-1",
+        "padding-block-start": 32,
+        "padding-block-end": 64
+      }
+    }
+  },
+  "order": ["main"]
+}
+

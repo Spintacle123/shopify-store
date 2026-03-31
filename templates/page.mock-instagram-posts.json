@@ -1,0 +1,16 @@
+{
+  "sections": {
+    "main": {
+      "type": "mock-instagram-posts",
+      "settings": {
+        "heading": "Instagram Posts",
+        "subheading": "<p>A mock feed to preview the design.</p>",
+        "color_scheme": "scheme-1",
+        "padding-block-start": 32,
+        "padding-block-end": 48
+      }
+    }
+  },
+  "order": ["main"]
+}
+
