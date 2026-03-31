@@ -4,6 +4,100 @@
   fetchpriority="low"
 ></script>
 
+{%- comment -%} ── Modal overlay ── {%- endcomment -%}
+<div class="ig-modal" id="igModal-{{ section.id }}" role="dialog" aria-modal="true" aria-label="Blog post" hidden>
+  <div class="ig-modal__backdrop" data-ig-close></div>
+  <div class="ig-modal__box">
+    <button class="ig-modal__close" data-ig-close aria-label="Close">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    {%- comment -%} Left: image {%- endcomment -%}
+    <div class="ig-modal__image-side">
+      <div class="ig-modal__image-wrap">
+        <img class="ig-modal__image" src="" alt="" />
+        <div class="ig-modal__image-placeholder" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    {%- comment -%} Right: details + comments {%- endcomment -%}
+    <div class="ig-modal__detail">
+
+      <div class="ig-modal__header">
+        <div class="ig-modal__avatar" aria-hidden="true">
+          <span class="ig-modal__avatar-letter"></span>
+        </div>
+        <div class="ig-modal__header-text">
+          <span class="ig-modal__username"></span>
+          <span class="ig-modal__date"></span>
+        </div>
+      </div>
+
+      <div class="ig-modal__body">
+        <h2 class="ig-modal__title"></h2>
+        <p class="ig-modal__caption"></p>
+        <div class="ig-modal__likes">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          <span class="ig-modal__likes-text"></span>
+        </div>
+      </div>
+
+      <ul class="ig-modal__comments" role="list"></ul>
+
+      <div class="ig-modal__add-comment">
+        <input type="text" class="ig-modal__comment-input" placeholder="Add a comment…" aria-label="Add a comment" />
+        <button type="button" class="ig-modal__post-btn">Post</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{%- comment -%} ── Post data (hidden, read by JS) ── {%- endcomment -%}
+<script type="application/json" id="igPosts-{{ section.id }}">
+  [
+    {% for block in section.blocks %}
+      {% if block.type == 'post' %}
+        {
+          "title": {{ block.settings.title | default: '' | json }},
+          "username": {{ block.settings.username | default: 'aerionix' | json }},
+          "date": {{ block.settings.date | default: '' | json }},
+          "likes": {{ block.settings.likes | default: '0' | json }},
+          "caption": {{ block.settings.caption | default: '' | json }},
+          "image": {% if block.settings.image != blank %}"{{ block.settings.image | image_url: width: 1200 }}"{% else %}""{% endif %},
+          "comments": [
+            {% if block.settings.comment_1_author != blank %}
+              { "author": {{ block.settings.comment_1_author | json }}, "text": {{ block.settings.comment_1_text | default: '' | json }} }{% if block.settings.comment_2_author != blank or block.settings.comment_3_author != blank %},{% endif %}
+            {% endif %}
+            {% if block.settings.comment_2_author != blank %}
+              { "author": {{ block.settings.comment_2_author | json }}, "text": {{ block.settings.comment_2_text | default: '' | json }} }{% if block.settings.comment_3_author != blank %},{% endif %}
+            {% endif %}
+            {% if block.settings.comment_3_author != blank %}
+              { "author": {{ block.settings.comment_3_author | json }}, "text": {{ block.settings.comment_3_text | default: '' | json }} }
+            {% endif %}
+          ]
+        }{% unless forloop.last %},{% endunless %}
+      {% endif %}
+    {% endfor %}
+    {% if section.blocks.size == 0 %}
+      { "title": "Sample Post Title", "username": "aerionix", "date": "Mar 31, 2026", "likes": "124", "caption": "Sample caption for this post.", "image": "", "comments": [{"author":"jamie","text":"Looks amazing!"},{"author":"alex","text":"Where can I get this?"}] },
+      { "title": "Sample Post Title", "username": "aerionix", "date": "Mar 31, 2026", "likes": "124", "caption": "Sample caption for this post.", "image": "", "comments": [{"author":"jamie","text":"Looks amazing!"},{"author":"alex","text":"Where can I get this?"}] },
+      { "title": "Sample Post Title", "username": "aerionix", "date": "Mar 31, 2026", "likes": "124", "caption": "Sample caption for this post.", "image": "", "comments": [{"author":"jamie","text":"Looks amazing!"},{"author":"alex","text":"Where can I get this?"}] }
+    {% endif %}
+  ]
+</script>
+
+{%- comment -%} ── Grid ── {%- endcomment -%}
 <div class="ig-feed color-{{ section.settings.color_scheme }}">
   <div class="section-background color-{{ section.settings.color_scheme }}"></div>
   <div class="ig-feed__inner section spacing-style" style="{% render 'spacing-style', settings: section.settings %}">
@@ -18,11 +112,18 @@
     {% endif %}
 
     <div class="ig-grid">
+
       {% for block in section.blocks %}
         {% if block.type == 'post' %}
-          <article class="ig-card" {{ block.shopify_attributes }}>
-
-            {%- comment -%} ── Card header: avatar + username + date ── {%- endcomment -%}
+          <article
+            class="ig-card"
+            {{ block.shopify_attributes }}
+            data-ig-post="{{ forloop.index0 }}"
+            data-section="{{ section.id }}"
+            role="button"
+            tabindex="0"
+            aria-label="Open post: {{ block.settings.title | default: 'Blog post' }}"
+          >
             <div class="ig-card__header">
               <div class="ig-card__avatar" aria-hidden="true">
                 {%- if block.settings.avatar != blank -%}
@@ -43,20 +144,8 @@
                 <span class="ig-card__username">{{ block.settings.username | default: 'aerionix' }}</span>
                 <span class="ig-card__date">{{ block.settings.date }}</span>
               </div>
-              <button
-                type="button"
-                class="ig-card__heart article-heart-button"
-                data-article-heart="{{ section.id }}-{{ forloop.index }}"
-                aria-pressed="false"
-                aria-label="Like post"
-              >
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                </svg>
-              </button>
             </div>
 
-            {%- comment -%} ── Square image ── {%- endcomment -%}
             <div class="ig-card__image-wrap">
               {% if block.settings.image != blank %}
                 {{
@@ -67,98 +156,47 @@
                     class: 'ig-card__image',
                     sizes: '(min-width: 990px) 30vw, (min-width: 750px) 45vw, 90vw',
                     loading: 'lazy',
-                    alt: block.settings.image.alt | default: block.settings.caption
+                    alt: block.settings.image.alt | default: block.settings.title
                 }}
               {% else %}
                 <div class="ig-card__image ig-card__image--placeholder">
-                  <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true" focusable="false">
+                  <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                     <circle cx="8.5" cy="8.5" r="1.5"/>
                     <polyline points="21 15 16 10 5 21"/>
                   </svg>
                 </div>
               {% endif %}
-            </div>
-
-            {%- comment -%} ── Actions bar ── {%- endcomment -%}
-            <div class="ig-card__actions">
-              <div class="ig-card__actions-left">
-                <span class="ig-card__like-count">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true" focusable="false">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                  </svg>
-                  {{ block.settings.likes | default: '0' }} likes
-                </span>
-              </div>
-              <span class="ig-card__comment-count">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <div class="ig-card__overlay" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="white" aria-hidden="true">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                <span>{{ block.settings.likes | default: '0' }}</span>
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="white" aria-hidden="true" style="margin-left:1rem">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                 </svg>
-                {{ block.settings.comment_count | default: '0' }}
-              </span>
+                <span>{{ block.settings.comment_count | default: '0' }}</span>
+              </div>
             </div>
 
-            {%- comment -%} ── Title ── {%- endcomment -%}
             {% if block.settings.title != blank %}
               <h3 class="ig-card__title">{{ block.settings.title }}</h3>
             {% endif %}
 
-            {%- comment -%} ── Caption ── {%- endcomment -%}
             {% if block.settings.caption != blank %}
-              <div class="ig-card__caption">
+              <p class="ig-card__caption">
                 <span class="ig-card__caption-username">{{ block.settings.username | default: 'aerionix' }}</span>
                 {{ block.settings.caption }}
-              </div>
+              </p>
             {% endif %}
-
-            {%- comment -%} ── Comments ── {%- endcomment -%}
-            {% assign has_comments = false %}
-            {% if block.settings.comment_1_author != blank %}{% assign has_comments = true %}{% endif %}
-            {% if block.settings.comment_2_author != blank %}{% assign has_comments = true %}{% endif %}
-            {% if block.settings.comment_3_author != blank %}{% assign has_comments = true %}{% endif %}
-
-            {% if has_comments %}
-              <ul class="ig-card__comments" role="list">
-                {% if block.settings.comment_1_author != blank %}
-                  <li class="ig-card__comment">
-                    <span class="ig-card__comment-author">{{ block.settings.comment_1_author }}</span>
-                    <span class="ig-card__comment-text">{{ block.settings.comment_1_text }}</span>
-                  </li>
-                {% endif %}
-                {% if block.settings.comment_2_author != blank %}
-                  <li class="ig-card__comment">
-                    <span class="ig-card__comment-author">{{ block.settings.comment_2_author }}</span>
-                    <span class="ig-card__comment-text">{{ block.settings.comment_2_text }}</span>
-                  </li>
-                {% endif %}
-                {% if block.settings.comment_3_author != blank %}
-                  <li class="ig-card__comment">
-                    <span class="ig-card__comment-author">{{ block.settings.comment_3_author }}</span>
-                    <span class="ig-card__comment-text">{{ block.settings.comment_3_text }}</span>
-                  </li>
-                {% endif %}
-              </ul>
-            {% endif %}
-
-            {%- comment -%} ── Add comment input ── {%- endcomment -%}
-            <div class="ig-card__add-comment">
-              <input
-                type="text"
-                class="ig-card__comment-input"
-                placeholder="Add a comment…"
-                aria-label="Add a comment"
-              />
-              <button type="button" class="ig-card__post-btn">Post</button>
-            </div>
 
           </article>
         {% endif %}
       {% endfor %}
 
       {% if section.blocks.size == 0 %}
-        {%- comment -%} Placeholder cards when no blocks are added ── {%- endcomment -%}
         {% for i in (1..3) %}
-          <article class="ig-card ig-card--placeholder">
+          <article class="ig-card" data-ig-post="{{ forloop.index0 }}" data-section="{{ section.id }}" role="button" tabindex="0" aria-label="Open post">
             <div class="ig-card__header">
               <div class="ig-card__avatar"><span class="ig-card__avatar-placeholder">A</span></div>
               <div class="ig-card__header-text">
@@ -168,44 +206,122 @@
             </div>
             <div class="ig-card__image-wrap">
               <div class="ig-card__image ig-card__image--placeholder">
-                <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true" focusable="false">
+                <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
                   <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                   <circle cx="8.5" cy="8.5" r="1.5"/>
                   <polyline points="21 15 16 10 5 21"/>
                 </svg>
               </div>
-            </div>
-            <div class="ig-card__actions">
-              <span class="ig-card__like-count">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true" focusable="false">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                </svg>
-                124 likes
-              </span>
+              <div class="ig-card__overlay" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="white" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <span>124</span>
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="white" aria-hidden="true" style="margin-left:1rem"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span>2</span>
+              </div>
             </div>
             <h3 class="ig-card__title">Sample Post Title</h3>
-            <div class="ig-card__caption">
-              <span class="ig-card__caption-username">aerionix</span>
-              Sample caption for this post. Add your own content here.
-            </div>
-            <ul class="ig-card__comments" role="list">
-              <li class="ig-card__comment"><span class="ig-card__comment-author">jamie</span><span class="ig-card__comment-text">Looks amazing!</span></li>
-              <li class="ig-card__comment"><span class="ig-card__comment-author">alex</span><span class="ig-card__comment-text">Where can I get this?</span></li>
-            </ul>
-            <div class="ig-card__add-comment">
-              <input type="text" class="ig-card__comment-input" placeholder="Add a comment…" aria-label="Add a comment" />
-              <button type="button" class="ig-card__post-btn">Post</button>
-            </div>
+            <p class="ig-card__caption"><span class="ig-card__caption-username">aerionix</span> Sample caption for this post.</p>
           </article>
         {% endfor %}
       {% endif %}
-    </div>
 
+    </div>
   </div>
 </div>
 
+<script>
+(function () {
+  var sectionId = {{ section.id | json }};
+  var modal     = document.getElementById('igModal-' + sectionId);
+  var postsEl   = document.getElementById('igPosts-' + sectionId);
+  if (!modal || !postsEl) return;
+
+  var posts = JSON.parse(postsEl.textContent);
+
+  function openPost(index) {
+    var p = posts[index];
+    if (!p) return;
+
+    // image
+    var imgEl   = modal.querySelector('.ig-modal__image');
+    var phEl    = modal.querySelector('.ig-modal__image-placeholder');
+    if (p.image) {
+      imgEl.src = p.image;
+      imgEl.alt = p.title || '';
+      imgEl.hidden = false;
+      phEl.hidden  = true;
+    } else {
+      imgEl.hidden = true;
+      phEl.hidden  = false;
+    }
+
+    // header
+    modal.querySelector('.ig-modal__avatar-letter').textContent = (p.username || 'A').charAt(0).toUpperCase();
+    modal.querySelector('.ig-modal__username').textContent = p.username || '';
+    modal.querySelector('.ig-modal__date').textContent     = p.date || '';
+
+    // body
+    modal.querySelector('.ig-modal__title').textContent       = p.title || '';
+    modal.querySelector('.ig-modal__caption').textContent     = p.caption || '';
+    modal.querySelector('.ig-modal__likes-text').textContent  = (p.likes || '0') + ' likes';
+
+    // comments
+    var ul = modal.querySelector('.ig-modal__comments');
+    ul.innerHTML = '';
+    (p.comments || []).forEach(function (c) {
+      var li   = document.createElement('li');
+      li.className = 'ig-modal__comment';
+      var b    = document.createElement('span');
+      b.className = 'ig-modal__comment-author';
+      b.textContent = c.author;
+      var t    = document.createElement('span');
+      t.className = 'ig-modal__comment-text';
+      t.textContent = ' ' + c.text;
+      li.appendChild(b);
+      li.appendChild(t);
+      ul.appendChild(li);
+    });
+
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    modal.querySelector('.ig-modal__close').focus();
+  }
+
+  function closeModal() {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  // Open on card click / enter
+  document.querySelectorAll('[data-ig-post][data-section="' + sectionId + '"]').forEach(function (card) {
+    card.addEventListener('click', function () { openPost(+card.dataset.igPost); });
+    card.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPost(+card.dataset.igPost); } });
+  });
+
+  // Close on backdrop / close button / Escape
+  modal.querySelectorAll('[data-ig-close]').forEach(function (el) {
+    el.addEventListener('click', closeModal);
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
+
+  // Mock "Post" button
+  modal.querySelector('.ig-modal__post-btn').addEventListener('click', function () {
+    var input = modal.querySelector('.ig-modal__comment-input');
+    var val   = input.value.trim();
+    if (!val) return;
+    var ul = modal.querySelector('.ig-modal__comments');
+    var li = document.createElement('li');
+    li.className = 'ig-modal__comment';
+    li.innerHTML = '<span class="ig-modal__comment-author">you</span><span class="ig-modal__comment-text"> ' + val.replace(/</g,'&lt;') + '</span>';
+    ul.appendChild(li);
+    input.value = '';
+    ul.scrollTop = ul.scrollHeight;
+  });
+})();
+</script>
+
 {% stylesheet %}
-  /* ── Feed wrapper ───────────────────────────────── */
+  /* ── Feed ───────────────────────────────────────── */
   .ig-feed__inner {
     max-width: 1080px;
     margin-inline: auto;
@@ -229,7 +345,7 @@
     margin: 0;
   }
 
-  /* ── 3-column grid ──────────────────────────────── */
+  /* ── Grid ───────────────────────────────────────── */
   .ig-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -237,16 +353,11 @@
   }
 
   @media screen and (max-width: 749px) {
-    .ig-grid {
-      grid-template-columns: 1fr;
-      gap: 2rem;
-    }
+    .ig-grid { grid-template-columns: 1fr; gap: 2rem; }
   }
 
   @media screen and (min-width: 750px) and (max-width: 989px) {
-    .ig-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
+    .ig-grid { grid-template-columns: repeat(2, 1fr); }
   }
 
   /* ── Card ───────────────────────────────────────── */
@@ -259,6 +370,18 @@
     overflow: hidden;
     font-size: 0.8125rem;
     line-height: 1.45;
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+
+  .ig-card:hover {
+    box-shadow: 0 8px 28px rgb(0 0 0 / 0.1);
+    transform: translateY(-2px);
+  }
+
+  .ig-card:focus-visible {
+    outline: 2px solid #3897f0;
+    outline-offset: 2px;
   }
 
   /* ── Card header ────────────────────────────────── */
@@ -266,8 +389,9 @@
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    padding: 0.7rem 0.8rem 0.7rem 0.75rem;
+    padding: 0.7rem 0.8rem;
     border-bottom: 1px solid rgb(var(--color-foreground-rgb) / 0.06);
+    pointer-events: none;
   }
 
   .ig-card__avatar {
@@ -282,12 +406,7 @@
     justify-content: center;
   }
 
-  .ig-card__avatar-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
+  .ig-card__avatar-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
   .ig-card__avatar-placeholder {
     font-size: 0.8rem;
@@ -317,28 +436,9 @@
     color: rgb(var(--color-foreground-rgb) / var(--opacity-subdued-text));
   }
 
-  /* Heart button in header */
-  .ig-card__heart {
-    flex-shrink: 0;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    color: rgb(var(--color-foreground-rgb) / 0.4);
-    display: flex;
-    align-items: center;
-    border-radius: 50%;
-    transition: color 0.2s, transform 0.15s;
-  }
-
-  .ig-card__heart:hover,
-  .ig-card__heart[aria-pressed="true"] {
-    color: #e0245e;
-    transform: scale(1.15);
-  }
-
   /* ── Image ──────────────────────────────────────── */
   .ig-card__image-wrap {
+    position: relative;
     width: 100%;
     aspect-ratio: 1 / 1;
     overflow: hidden;
@@ -354,7 +454,7 @@
   }
 
   .ig-card:hover .ig-card__image:not(.ig-card__image--placeholder) {
-    transform: scale(1.03);
+    transform: scale(1.04);
   }
 
   .ig-card__image--placeholder {
@@ -366,55 +466,50 @@
     height: 100%;
   }
 
-  /* ── Actions bar ─────────────────────────────────── */
-  .ig-card__actions {
+  /* Hover overlay (Instagram-style stats) */
+  .ig-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 0.35);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0.55rem 0.85rem 0.1rem;
-    gap: 0.5rem;
+    justify-content: center;
+    gap: 0.35rem;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
   }
 
-  .ig-card__actions-left {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .ig-card__like-count,
-  .ig-card__comment-count {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: rgb(var(--color-foreground-rgb) / 0.7);
-  }
-
-  .ig-card__like-count svg {
-    color: #e0245e;
+  .ig-card:hover .ig-card__overlay {
+    opacity: 1;
   }
 
   /* ── Title ──────────────────────────────────────── */
   .ig-card__title {
     margin: 0;
-    padding: 0.55rem 0.85rem 0.1rem;
+    padding: 0.6rem 0.85rem 0.1rem;
     font-size: 0.875rem;
     font-weight: 700;
     line-height: 1.3;
     color: rgb(var(--color-foreground-rgb));
     letter-spacing: -0.01em;
+    pointer-events: none;
   }
 
   /* ── Caption ─────────────────────────────────────── */
   .ig-card__caption {
-    padding: 0.35rem 0.85rem 0.1rem;
+    padding: 0.25rem 0.85rem 0.85rem;
     font-size: 0.8rem;
     color: rgb(var(--color-foreground-rgb) / 0.85);
+    margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    pointer-events: none;
   }
 
   .ig-card__caption-username {
@@ -423,61 +518,225 @@
     margin-right: 0.35em;
   }
 
-  /* ── Comments ────────────────────────────────────── */
-  .ig-card__comments {
-    list-style: none;
-    margin: 0;
-    padding: 0.3rem 0.85rem 0;
+  /* ── Modal ───────────────────────────────────────── */
+  .ig-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .ig-modal[hidden] { display: none; }
+
+  .ig-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 0.65);
+    cursor: pointer;
+  }
+
+  .ig-modal__box {
+    position: relative;
+    display: flex;
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    background: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgb(0 0 0 / 0.3);
+  }
+
+  .ig-modal__close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 10;
+    background: rgb(0 0 0 / 0.45);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    transition: background 0.15s;
+  }
+
+  .ig-modal__close:hover { background: rgb(0 0 0 / 0.65); }
+
+  /* Left: image */
+  .ig-modal__image-side {
+    flex: 0 0 55%;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ig-modal__image-wrap {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ig-modal__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .ig-modal__image-placeholder {
+    color: rgb(255 255 255 / 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Right: detail */
+  .ig-modal__detail {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
-  }
-
-  .ig-card__comment {
-    font-size: 0.78rem;
-    color: rgb(var(--color-foreground-rgb) / 0.8);
-    line-height: 1.4;
-    white-space: nowrap;
+    min-width: 0;
+    max-height: 90vh;
     overflow: hidden;
-    text-overflow: ellipsis;
   }
 
-  .ig-card__comment-author {
+  .ig-modal__header {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #efefef;
+    flex-shrink: 0;
+  }
+
+  .ig-modal__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #e9e9e9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .ig-modal__avatar-letter {
+    font-size: 0.85rem;
     font-weight: 700;
-    color: rgb(var(--color-foreground-rgb));
+    color: #555;
+  }
+
+  .ig-modal__header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.05rem;
+  }
+
+  .ig-modal__username {
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: #262626;
+  }
+
+  .ig-modal__date {
+    font-size: 0.72rem;
+    color: #8e8e8e;
+  }
+
+  .ig-modal__body {
+    padding: 0.85rem 1rem 0.5rem;
+    border-bottom: 1px solid #efefef;
+    flex-shrink: 0;
+  }
+
+  .ig-modal__title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 0.35rem;
+    color: #262626;
+    line-height: 1.3;
+  }
+
+  .ig-modal__caption {
+    font-size: 0.85rem;
+    color: #262626;
+    margin: 0 0 0.6rem;
+    line-height: 1.5;
+  }
+
+  .ig-modal__likes {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #262626;
+  }
+
+  .ig-modal__likes svg { color: #e0245e; }
+
+  .ig-modal__comments {
+    flex: 1;
+    overflow-y: auto;
+    list-style: none;
+    margin: 0;
+    padding: 0.65rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .ig-modal__comment {
+    font-size: 0.83rem;
+    color: #262626;
+    line-height: 1.45;
+  }
+
+  .ig-modal__comment-author {
+    font-weight: 700;
     margin-right: 0.35em;
   }
 
-  /* ── Add comment ─────────────────────────────────── */
-  .ig-card__add-comment {
+  .ig-modal__comment-text { color: #262626; }
+
+  .ig-modal__add-comment {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.55rem 0.85rem 0.75rem;
-    margin-top: auto;
-    border-top: 1px solid rgb(var(--color-foreground-rgb) / 0.07);
-    margin-top: 0.5rem;
+    padding: 0.7rem 1rem;
+    border-top: 1px solid #efefef;
+    flex-shrink: 0;
   }
 
-  .ig-card__comment-input {
+  .ig-modal__comment-input {
     flex: 1;
     border: none;
     outline: none;
+    font-size: 0.83rem;
+    color: #262626;
     background: transparent;
-    font-size: 0.78rem;
-    color: rgb(var(--color-foreground-rgb));
-    placeholder-color: rgb(var(--color-foreground-rgb) / 0.4);
   }
 
-  .ig-card__comment-input::placeholder {
-    color: rgb(var(--color-foreground-rgb) / 0.38);
-  }
+  .ig-modal__comment-input::placeholder { color: #aaa; }
 
-  .ig-card__post-btn {
+  .ig-modal__post-btn {
     background: none;
     border: none;
-    font-size: 0.78rem;
-    font-weight: 600;
+    font-size: 0.83rem;
+    font-weight: 700;
     color: #3897f0;
     cursor: pointer;
     padding: 0;
@@ -485,8 +744,11 @@
     transition: opacity 0.15s;
   }
 
-  .ig-card__post-btn:hover {
-    opacity: 0.7;
+  .ig-modal__post-btn:hover { opacity: 0.65; }
+
+  @media screen and (max-width: 749px) {
+    .ig-modal__box { flex-direction: column; max-height: 95vh; }
+    .ig-modal__image-side { flex: 0 0 45vw; min-height: 240px; }
   }
 {% endstylesheet %}
 
@@ -581,7 +843,7 @@
         {
           "type": "text",
           "id": "comment_count",
-          "label": "Comment count label",
+          "label": "Comment count",
           "default": "3"
         },
         {
