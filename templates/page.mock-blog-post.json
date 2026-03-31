@@ -6,6 +6,7 @@
         "post-1": {
           "type": "post",
           "settings": {
+            "title": "Savors Every Last Bite",
             "username": "aerionix",
             "date": "Mar 31, 2026",
             "likes": "248",
@@ -22,6 +23,7 @@
         "post-2": {
           "type": "post",
           "settings": {
+            "title": "Behind the Scenes",
             "username": "aerionix",
             "date": "Mar 28, 2026",
             "likes": "187",
@@ -38,6 +40,7 @@
         "post-3": {
           "type": "post",
           "settings": {
+            "title": "New Season, New Chapter",
             "username": "aerionix",
             "date": "Mar 25, 2026",
             "likes": "312",

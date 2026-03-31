@@ -98,6 +98,11 @@
               </span>
             </div>
 
+            {%- comment -%} ── Title ── {%- endcomment -%}
+            {% if block.settings.title != blank %}
+              <h3 class="ig-card__title">{{ block.settings.title }}</h3>
+            {% endif %}
+
             {%- comment -%} ── Caption ── {%- endcomment -%}
             {% if block.settings.caption != blank %}
               <div class="ig-card__caption">
@@ -178,6 +183,7 @@
                 124 likes
               </span>
             </div>
+            <h3 class="ig-card__title">Sample Post Title</h3>
             <div class="ig-card__caption">
               <span class="ig-card__caption-username">aerionix</span>
               Sample caption for this post. Add your own content here.
@@ -389,6 +395,17 @@
     color: #e0245e;
   }
 
+  /* ── Title ──────────────────────────────────────── */
+  .ig-card__title {
+    margin: 0;
+    padding: 0.55rem 0.85rem 0.1rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: rgb(var(--color-foreground-rgb));
+    letter-spacing: -0.01em;
+  }
+
   /* ── Caption ─────────────────────────────────────── */
   .ig-card__caption {
     padding: 0.35rem 0.85rem 0.1rem;
@@ -527,6 +544,12 @@
       "type": "post",
       "name": "Post",
       "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Savors every last bite"
+        },
         {
           "type": "image_picker",
           "id": "image",
