@@ -2,18 +2,65 @@
   "sections": {
     "main": {
       "type": "mock-blog-post",
+      "blocks": {
+        "post-1": {
+          "type": "post",
+          "settings": {
+            "username": "aerionix",
+            "date": "Mar 31, 2026",
+            "likes": "248",
+            "comment_count": "3",
+            "caption": "Savors every last bite. Our latest drop is here — crafted for those who appreciate quality. ✨",
+            "comment_1_author": "jamie",
+            "comment_1_text": "Looks amazing. Can't wait to try this!",
+            "comment_2_author": "alex",
+            "comment_2_text": "Where can I find the full catalog?",
+            "comment_3_author": "morgan",
+            "comment_3_text": "Just ordered mine 🙌"
+          }
+        },
+        "post-2": {
+          "type": "post",
+          "settings": {
+            "username": "aerionix",
+            "date": "Mar 28, 2026",
+            "likes": "187",
+            "comment_count": "2",
+            "caption": "Behind the scenes at our studio. Every detail is intentional — from material to finish.",
+            "comment_1_author": "sam",
+            "comment_1_text": "The craftsmanship is next level.",
+            "comment_2_author": "riley",
+            "comment_2_text": "When does this drop?",
+            "comment_3_author": "",
+            "comment_3_text": ""
+          }
+        },
+        "post-3": {
+          "type": "post",
+          "settings": {
+            "username": "aerionix",
+            "date": "Mar 25, 2026",
+            "likes": "312",
+            "comment_count": "3",
+            "caption": "New season, new chapter. Explore the collection that redefines everyday luxury.",
+            "comment_1_author": "jordan",
+            "comment_1_text": "This is exactly what I've been waiting for.",
+            "comment_2_author": "taylor",
+            "comment_2_text": "The color palette is perfect.",
+            "comment_3_author": "casey",
+            "comment_3_text": "Just shared this with my whole feed!"
+          }
+        }
+      },
+      "block_order": ["post-1", "post-2", "post-3"],
       "settings": {
-        "title": "Savors every last bite",
-        "author": "Aerionix",
-        "date": "Mar 31, 2026",
-        "description": "<p>A short description to preview typography, spacing, and layout.</p>",
-        "content": "<p>This is mock content. Replace it with your real blog post later.</p><p>Add more paragraphs, headings, and images to see how it looks.</p>",
+        "heading": "Latest Posts",
+        "subheading": "What's happening at Aerionix",
         "color_scheme": "scheme-1",
-        "padding-block-start": 32,
+        "padding-block-start": 48,
         "padding-block-end": 64
       }
     }
   },
   "order": ["main"]
 }
-
