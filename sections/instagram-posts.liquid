@@ -3,6 +3,11 @@
   type="module"
   fetchpriority="low"
 ></script>
+<script
+  src="{{ 'article-hearts.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
 
 {% liquid
   assign selected_blog = section.settings.blog
@@ -118,6 +123,9 @@
               data-testid="blog-post-item"
               data-blog-index="{{ section.id }}-{{ forloop.index }}"
             >
+              <div class="blog-post-item__heart">
+                {% render 'article-heart-button', article: article, show_text: false %}
+              </div>
               {% content_for 'block', id: 'static-blog-post-card', type: '_blog-post-card', article: article %}
             </div>
           {% endfor %}
@@ -148,6 +156,7 @@
 
   .blog-post-item {
     grid-column: span var(--col-span);
+    position: relative;
   }
 
   .blog-post-item {
@@ -158,6 +167,18 @@
   .blog-post-item:has(.blog-post-card__image-container) {
     border: none;
     padding: 0;
+  }
+
+  .blog-post-item__heart {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+  }
+
+  .blog-post-item__heart .article-heart-button {
+    background: rgb(var(--color-background-rgb) / 0.88);
+    backdrop-filter: blur(6px);
   }
 {% endstylesheet %}
 
@@ -249,4 +270,3 @@
   ]
 }
 {% endschema %}
-

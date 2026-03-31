@@ -4214,3 +4214,38 @@ product-recommendations:has([data-has-recommendations='false']) {
     translate: 0px var(--atc-destination, 0px);
   }
 }
+
+.article-heart-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid rgb(var(--color-foreground-rgb) / var(--opacity-20));
+  background: rgb(var(--color-background-rgb) / 0.9);
+  color: var(--color-foreground);
+  border-radius: 999px;
+  padding: 0.45rem 0.65rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.article-heart-button:hover {
+  border-color: rgb(var(--color-foreground-rgb) / var(--opacity-40));
+}
+
+.article-heart-button.is-active {
+  border-color: rgb(var(--color-foreground-rgb) / var(--opacity-60));
+}
+
+.article-heart-button__icon {
+  display: grid;
+  place-items: center;
+}
+
+.article-heart-button.is-active .article-heart-button__icon {
+  color: rgb(var(--color-accent-rgb, var(--color-foreground-rgb)));
+}
+
+.article-heart-button__text {
+  font-size: var(--font-size--body-sm);
+  line-height: 1;
+}
